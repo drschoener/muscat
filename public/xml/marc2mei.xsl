@@ -2176,7 +2176,7 @@
           <xsl:for-each select="$uniqueTerms/mei:term">
             <xsl:sort select="@analog"/>
             <xsl:sort/>
-            <xsl:copy-of select="."/>
+            <xsl:copy-of select="." copy-namespaces="no"/>
           </xsl:for-each>
         </termList>
       </classification>
@@ -2348,7 +2348,7 @@
           </xsl:variable>
           <xsl:for-each select="$sortedRespStmts/mei:respStmt">
             <xsl:if test="not(preceding-sibling::mei:respStmt = .)">
-              <xsl:copy-of select="."/>
+              <xsl:copy-of select="." copy-namespaces="no"/>
             </xsl:if>
           </xsl:for-each>
         </titleStmt>
@@ -2399,7 +2399,7 @@
                           ''))"/>
                       </xsl:when>
                       <xsl:otherwise>
-                        <xsl:value-of select="concat('_', marc:controlfield[@tag='001'])"/>
+                        <xsl:value-of select="marc:controlfield[@tag='001']"/>
                       </xsl:otherwise>
                     </xsl:choose>
                   </xsl:attribute>
@@ -2436,7 +2436,7 @@
                   </xsl:variable>
                   <xsl:for-each select="$sortedRespStmts/mei:respStmt">
                     <xsl:if test="not(preceding-sibling::mei:respStmt = .)">
-                      <xsl:copy-of select="."/>
+                      <xsl:copy-of select="." copy-namespaces="no"/>
                     </xsl:if>
                   </xsl:for-each>
                 </titleStmt>
@@ -2672,12 +2672,12 @@
                       <xsl:sort select="mei:*[local-name()='persName' or
                         local-name()='corpName']/@analog"/>
                       <xsl:sort/>
-                      <xsl:copy-of select="."/>
+                        <xsl:copy-of select="." />
                     </xsl:for-each>
                   </xsl:variable>
                   <xsl:for-each select="$sortedRespStmts/mei:respStmt">
                     <xsl:if test="not(preceding-sibling::mei:respStmt = .)">
-                      <xsl:copy-of select="."/>
+                      <xsl:copy-of select="." copy-namespaces="no" />
                     </xsl:if>
                   </xsl:for-each>
                 </titleStmt>
@@ -2892,7 +2892,7 @@
             </xsl:variable>
             <xsl:for-each select="$sortedRespStmts/mei:respStmt">
               <xsl:if test="not(preceding-sibling::mei:respStmt = .)">
-                <xsl:copy-of select="."/>
+                  <xsl:copy-of select="."  copy-namespaces="no"/>
               </xsl:if>
             </xsl:for-each>
           </titleStmt>
@@ -3136,8 +3136,8 @@
   <xsl:template match="marc:datafield[@tag='031']">
     <incip>
       <xsl:attribute name="n">
-        <xsl:value-of select="normalize-space(concat(marc:subfield[@code='a'], '&#32;',
-          marc:subfield[@code='b'], '&#32;', marc:subfield[@code='c']))"/>
+        <xsl:value-of select="normalize-space(concat(marc:subfield[@code='a'], '-',
+          marc:subfield[@code='b'], '-', marc:subfield[@code='c']))"/>
       </xsl:attribute>
       <xsl:attribute name="label">
         <xsl:choose>
@@ -3212,26 +3212,28 @@
       <xsl:if test="marc:subfield[@code='p']">
         <incipCode>
           <xsl:attribute name="form">
-            <xsl:choose>
-              <xsl:when test="marc:subfield[@code='2']='pe'">
-                <xsl:text>plaineAndEasie</xsl:text>
-              </xsl:when>
-            </xsl:choose>
-          </xsl:attribute>
-          <xsl:attribute name="key">
-            <xsl:value-of select="marc:subfield[@code='n']"/>
-          </xsl:attribute>
-          <xsl:attribute name="clef">
-            <xsl:value-of select="marc:subfield[@code='g']"/>
-          </xsl:attribute>
-          <xsl:attribute name="time">
-            <xsl:value-of select="marc:subfield[@code='o']"/>
+            <xsl:text>plaineAndEasie</xsl:text>
           </xsl:attribute>
           <xsl:call-template name="analog">
             <xsl:with-param name="tag">
               <xsl:value-of select="concat(@tag, 'p')"/>
             </xsl:with-param>
           </xsl:call-template>
+            <xsl:if test="marc:subfield[@code='g']">
+                <xsl:text>%</xsl:text>
+                <xsl:value-of select="marc:subfield[@code='g']"/>
+                <xsl:text> </xsl:text>
+            </xsl:if>
+            <xsl:if test="marc:subfield[@code='n']">
+              <xsl:text>$</xsl:text>
+              <xsl:value-of select="marc:subfield[@code='n']"/>
+              <xsl:text> </xsl:text>
+            </xsl:if>
+            <xsl:if test="marc:subfield[@code='o']">
+                <xsl:text>@</xsl:text>
+                <xsl:value-of select="marc:subfield[@code='o']"/>
+                <xsl:text> </xsl:text>
+            </xsl:if>
           <xsl:value-of select="marc:subfield[@code='p']"/>
         </incipCode>
       </xsl:if>
