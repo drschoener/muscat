@@ -82,3 +82,6 @@ gem 'activerecord-import', ">= 0.4.0"
 # gem 'selenium-webdriver'
 
 gem 'ruby-prof'
+
+# For the muscat command line
+gem 'commander'
