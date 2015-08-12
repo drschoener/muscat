@@ -137,12 +137,21 @@ command :merge do |c|
       
       references =  src_auth.send(link_model.pluralize.underscore)
       
+      if references.count == 0
+        puts "#{model} #{src_auth.id} ha no references to #{link_model}"
+        next
+      else
+        puts "Processing #{references.count} #{link_model}(s) related to #{model} #{src_auth.id}"
+      end
+      
+      pb = ProgressBar.new(references.count)
+      
       references.each do |ref|
         
-        # load the remote marc
+        pb.increment!
         
+        # load the remote marc
         begin
-          puts "open"
           marc = ref.marc
           x = marc.to_marc
         rescue => e
@@ -167,7 +176,6 @@ command :merge do |c|
             
             # Skip if this link is to another auth file
             next if marc_id.content.to_i != src_auth.id
-            puts "#{ref.id}: #{rtag} $#{master} = #{marc_id.content}"
             
             # Substitute them
             # Remove all a and d tags
@@ -208,7 +216,7 @@ command :merge do |c|
       
       
     end
-          
+    
   end
   
 end
