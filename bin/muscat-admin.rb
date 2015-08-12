@@ -102,6 +102,19 @@ command :merge do |c|
     auth1 = args[1]
     auth2 = args[2]
     
+    klass = model.singularize.classify.constantize
+    dest_auth = klass.find(auth1)
+    if !dest_auth
+      puts "Could not find a #{model} with id #{auth1}"
+      return
+    end
+    
+    src_auth = klass.find(auth2)
+    if !src_auth
+      puts "Could not find a #{model} with id #{auth2}"
+      return
+    end
+    
     links_to = ["Source"]
     
     links_to.each do |link_model|
@@ -122,14 +135,14 @@ command :merge do |c|
         end
       end
       
-      old_auth = model.singularize.classify.constantize.find("103857")
-      references =  old_auth.send(link_model.pluralize.underscore)
+      references =  src_auth.send(link_model.pluralize.underscore)
       
       references.each do |ref|
         
         # load the remote marc
         
         begin
+          puts "open"
           marc = ref.marc
           x = marc.to_marc
         rescue => e
@@ -141,18 +154,62 @@ command :merge do |c|
         # Now that we have marc let's go through the tags to update
         remote_tags.each do |rtag|
           
+          master = model_marc_conf.get_master(rtag)
+          
           marc.each_by_tag(rtag) do |marctag|
             # Get the remote tags
+            # is this tag pointing to the id of auth2?
+            marc_id = marctag.fetch_first_by_tag(master)
+            if !marc_id || !marc_id.content
+              puts "#{ref.id} tag #{rtag} does not have subtag #{master}"
+              next
+            end
             
+            # Skip if this link is to another auth file
+            next if marc_id.content.to_i != src_auth.id
+            puts "#{ref.id}: #{rtag} $#{master} = #{marc_id.content}"
             # Substitute them
+            
+            puts marctag.to_marc
+            
+            # Remove all a and d tags
+            marctag.each_by_tag("a") {|t| t.destroy_yourself}
+            marctag.each_by_tag("d") {|t| t.destroy_yourself}
+            
+            # Also remove all the old underscores, not used anymore
+            marctag.each_by_tag("_") {|t| t.destroy_yourself}
+            
+            # Sunstitute the id in $0 with the new auth file
+            # For some reason just substituting marc_id.content does not work
+            # Delete it and make a new tag
+            marc_id.destroy_yourself
+            
+            marctag.add(MarcNode.new(link_model.downcase, master, dest_auth.id, nil))
+            marctag.sort_alphabetically
+            
+            puts marctag.to_marc
             
           end
           
         end
         
+        # Marc remains cached even after save
+        # Create a new marc class and load it
+        # with the source from old marc
+        # it will resolve externals
+        # only then save the source
+        classname = "Marc" + link_model
+        dyna_marc_class = Kernel.const_get(classname)
+      
+        new_marc = dyna_marc_class.new(marc.to_marc)
+        new_marc.load_source(true)
+        
+        # set marc and save
+        ref.marc = new_marc
+        ref.save
+        
       end
       
-      #ap old_auth.sources
       
     end
           
