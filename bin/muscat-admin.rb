@@ -168,10 +168,8 @@ command :merge do |c|
             # Skip if this link is to another auth file
             next if marc_id.content.to_i != src_auth.id
             puts "#{ref.id}: #{rtag} $#{master} = #{marc_id.content}"
+            
             # Substitute them
-            
-            puts marctag.to_marc
-            
             # Remove all a and d tags
             marctag.each_by_tag("a") {|t| t.destroy_yourself}
             marctag.each_by_tag("d") {|t| t.destroy_yourself}
@@ -186,8 +184,6 @@ command :merge do |c|
             
             marctag.add(MarcNode.new(link_model.downcase, master, dest_auth.id, nil))
             marctag.sort_alphabetically
-            
-            puts marctag.to_marc
             
           end
           
