@@ -138,7 +138,7 @@ command :merge do |c|
       references =  src_auth.send(link_model.pluralize.underscore)
       
       if references.count == 0
-        puts "#{model} #{src_auth.id} ha no references to #{link_model}"
+        puts "#{model} #{src_auth.id} has no references to #{link_model}"
         next
       else
         puts "Processing #{references.count} #{link_model}(s) related to #{model} #{src_auth.id}"
