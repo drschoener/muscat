@@ -1,46 +1,57 @@
+require 'progress_bar'
 
 module Util
- module MarcMerge
-
-    def merge_record(model, dest_auth, src_auth)
-      
-      # Possible links for an auth file
-      # For the moment auth files are linked only to sources
-      links_to = ["Source"]
-  
-      links_to.each do |link_model|
-        update_relations(link_model, model, dest_auth, src_auth)
+ class MarcAuthMerge
+   
+   def initialize(model, dest_auth, src_auth)
+     @model = model
+     @dest_auth = dest_auth
+     @src_auth = src_auth
+     @unloadable = []
+     @unsavable = []
+     @progress = false
+     
+     # Possible links for an auth file
+     # For the moment auth files are linked only to sources
+     @links_to = ["Source"]
+     
+   end
+   
+   def show_progress
+     @progress = true
+   end
+   
+    def merge_records
+      @links_to.each do |link_model|
+        update_relations(link_model)
       end
 
     end
 
-
-    def update_relations(link_model, model, dest_auth, src_auth)
+    def update_relations(link_model)
       # 1) Get the remote tags which point to this authority file model
-      remote_tags = get_remote_tags_for(link_model, model)
+      remote_tags = get_remote_tags_for(link_model)
       
-      references =  src_auth.send(link_model.pluralize.underscore)
+      references =  @src_auth.send(link_model.pluralize.underscore)
   
       if references.count == 0
-        puts "#{model} #{src_auth.id} has no references to #{link_model}"
+        puts "#{@model} #{@src_auth.id} has no references to #{link_model}"
         return
       else
-        puts "Processing #{references.count} #{link_model}(s) related to #{model} #{src_auth.id}"
+        puts "Processing #{references.count} #{link_model}(s) related to #{@model} #{@src_auth.id}"
       end
   
-      pb = ProgressBar.new(references.count)
-  
+      pb = ProgressBar.new(references.count) if @progress
       references.each do |ref|
     
-        pb.increment!
+        pb.increment! if @progress
     
         # load the remote marc
         begin
           marc = ref.marc
           x = marc.to_marc
         rescue => e
-          puts e.exception
-          puts "Could not load MARC for #{ref.id}"
+          @unloadable << ref.id
           next
         end
     
@@ -60,7 +71,7 @@ module Util
             end
         
             # Skip if this link is to another auth file
-            next if marc_id.content.to_i != src_auth.id
+            next if marc_id.content.to_i != @src_auth.id
         
             # Substitute them
             # Remove all a and d tags
@@ -75,7 +86,7 @@ module Util
             # Delete it and make a new tag
             marc_id.destroy_yourself
         
-            marctag.add(MarcNode.new(link_model.downcase, master, dest_auth.id, nil))
+            marctag.add(MarcNode.new(link_model.downcase, master, @dest_auth.id, nil))
             marctag.sort_alphabetically
         
           end
@@ -95,12 +106,17 @@ module Util
     
         # set marc and save
         ref.marc = new_marc
-        ref.save
+        begin
+          ref.save
+        rescue => e
+          @unsavable << ref.id
+        end
+        
     
       end
     end
 
-    def get_remote_tags_for(link_model, model)
+    def get_remote_tags_for(link_model)
       remote_tags = []
       model_marc_conf = MarcConfigCache.get_configuration link_model.downcase
   
@@ -110,7 +126,7 @@ module Util
           if model_marc_conf.is_foreign?(foreign_tag, tag_letter)
             # Note: in the configuration only ID has the Foreign class
             # The others use ^0
-            next if model_marc_conf.get_foreign_class(foreign_tag, tag_letter) != model
+            next if model_marc_conf.get_foreign_class(foreign_tag, tag_letter) != @model
             remote_tags << foreign_tag if !remote_tags.include? foreign_tag
           end
         end

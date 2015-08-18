@@ -9,7 +9,7 @@ require 'rubygems'
 require 'commander/import'
 require 'progress_bar'
 
-include Util::MarcMerge
+require 'util/marc_auth_merge'
 
 program :version, '0.0.1'
 program :description, 'Muscat Administration Console'
@@ -117,7 +117,9 @@ command :merge do |c|
       return
     end
     
-    Util::MarcMerge::merge_record(model, dest_auth, src_auth)
+    merger = Util::MarcAuthMerge.new(model, dest_auth, src_auth)
+    merger.show_progress
+    merger.merge_records
     
   end
   
