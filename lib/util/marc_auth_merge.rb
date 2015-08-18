@@ -7,8 +7,8 @@ module Util
      @model = model
      @dest_auth = dest_auth
      @src_auth = src_auth
-     @unloadable = []
-     @unsavable = []
+     @unloadable = {}
+     @unsavable = {}
      @progress = false
      
      # Possible links for an auth file
@@ -19,6 +19,18 @@ module Util
    
    def show_progress
      @progress = true
+   end
+   
+   def errors?
+     return (@unloadable.count > 0 && @unsavable.count)
+   end
+   
+   def get_unloadable
+     @unloadable
+   end
+   
+   def get_unsavable
+     @unsavable
    end
    
     def merge_records
@@ -51,10 +63,10 @@ module Util
           marc = ref.marc
           x = marc.to_marc
         rescue => e
-          @unloadable << ref.id
+          @unloadable[ref.id] = e.exception
           next
         end
-    
+
         # Now that we have marc let's go through the tags to update
         remote_tags.each do |rtag|
       
@@ -109,7 +121,7 @@ module Util
         begin
           ref.save
         rescue => e
-          @unsavable << ref.id
+          @unsavable[ref.id] = e.exception
         end
         
     

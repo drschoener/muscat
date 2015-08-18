@@ -121,6 +121,13 @@ command :merge do |c|
     merger.show_progress
     merger.merge_records
     
+    if merger.errors?
+      puts "Unloadable records"
+      puts merger.get_unloadable
+      puts "Unsavable records"
+      puts merger.get_unsavable
+    end
+    
   end
   
 end
