@@ -62,6 +62,8 @@ command :check do |c|
     
     id = args[0]
     
+    unreadable = {}
+    
     pb = ProgressBar.new(Source.all.count)
     
     Source.all.each do |s|
@@ -71,8 +73,9 @@ command :check do |c|
         marc = src.marc
         x = marc.to_marc
       rescue => e
-        puts e.exception
-        puts "Could not load MARC for #{src.id}"
+        #puts e.exception
+        #puts "Could not load MARC for #{src.id}"
+        unreadable[src.id] = e.exception
         next
       end
     
@@ -92,6 +95,69 @@ command :check do |c|
           puts "#{src.id} has source_id #{src.source_id} but no 773 tag"
         end
       end
+    end
+    
+    if unreadable.count > 0
+      puts "There are some unloadable records:"
+      puts unreadable
+    end
+    
+  end
+end  
+
+class Array
+    def find_dups
+        uniq.map {|v| (self - [v]).size < (self.size - 1) ? v : nil}.compact
+    end
+end
+
+command :link_duplicates do |c|
+  c.syntax = 'muscat-admin check_links [options]'
+  c.summary = ''
+  c.description = ''
+  c.example 'description', 'ex'
+  
+  # Check that the 772s and 773s match the cached source_id
+  # if there is a 772 it means the remote source source_id points to us
+  # if there is a 773 it means this source_id points to the other
+  # if there is a source_id but no 773 fix it (remove source_id)
+  # There should be only a 773!
+  
+  c.action do |args, options|
+    
+    unreadable = {}
+    
+    pb = ProgressBar.new(Source.all.count)
+    
+    Source.all.each do |s|
+      pb.increment!
+      src = s#Source.find(id)
+      begin
+        marc = src.marc
+        x = marc.to_marc
+      rescue => e
+        #puts e.exception
+        #puts "Could not load MARC for #{src.id}"
+        unreadable[src.id] = e.exception
+        next
+      end
+    
+      ids = []
+      marc.each_by_tag("772") do |tag|
+        t = tag.fetch_first_by_tag("w")
+        ids << t.content if t && t.content
+      end
+      
+      if ids.find_dups.count > 0
+        puts s.id
+        ap ids.find_dups
+      end
+      
+    end #source.all
+    
+    if unreadable.count > 0
+      puts "There are some unloadable records:"
+      puts unreadable
     end
     
   end
