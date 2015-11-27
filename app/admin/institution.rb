@@ -8,6 +8,18 @@ ActiveAdmin.register Institution do
   collection_action :autocomplete_institution_siglum, :method => :get
   collection_action :autocomplete_institution_name, :method => :get
 
+  breadcrumb do
+    active_admin_muscat_breadcrumb
+  end
+    
+  action_item :view, only: :show, if: proc{ is_selection_mode? } do
+    active_admin_muscat_select_link( institution )
+  end
+
+  action_item :view, only: [:index, :show], if: proc{ is_selection_mode? } do
+    active_admin_muscat_cancel_link
+  end
+
   # See permitted parameters documentation:
   # https://github.com/gregbell/active_admin/blob/master/docs/2-resource-customization.md#setting-up-strong-parameters
   #
@@ -22,6 +34,11 @@ ActiveAdmin.register Institution do
       item.user = current_user
     end
     
+    def action_methods
+      return super - ['new', 'edit', 'destroy'] if is_selection_mode?
+      super
+    end
+    
     def check_model_errors(object)
       return unless object.errors.any?
       flash[:error] ||= []
@@ -34,14 +51,25 @@ ActiveAdmin.register Institution do
 
     def edit
       @item = Institution.find(params[:id])
+      @show_history = true if params[:show_history]
       @editor_profile = EditorConfiguration.get_applicable_layout @item
       @page_title = "#{I18n.t(:edit)} #{@editor_profile.name} [#{@item.id}]"
     end
     
     def show
-      @item = @institution = Institution.find(params[:id])
+      begin
+        @item = @institution = Institution.find(params[:id])
+      rescue ActiveRecord::RecordNotFound
+        redirect_to admin_root_path, :flash => { :error => "#{I18n.t(:error_not_found)} (Institution #{params[:id]})" }
+        return
+      end
       @editor_profile = EditorConfiguration.get_show_layout @institution
       @prev_item, @next_item, @prev_page, @next_page = Institution.near_items_as_ransack(params, @institution)
+      
+      respond_to do |format|
+        format.html
+        format.xml { render :xml => @item.marc.to_xml(@item.updated_at, @item.versions) }
+      end
     end
    
     def index
@@ -87,14 +115,14 @@ ActiveAdmin.register Institution do
   filter :id_with_integer, :label => proc {I18n.t(:is_in_folder)}, as: :select, 
          collection: proc{Folder.where(folder_type: "Institution").collect {|c| [c.name, "folder_id:#{c.id}"]}}
   
-  index do
-    selectable_column
+  index :download_links => false do
+    selectable_column if !is_selection_mode?
     column (I18n.t :filter_id), :id  
     column (I18n.t :filter_siglum), :siglum
     column (I18n.t :filter_location_and_name), :name
     column (I18n.t :filter_place), :place
     column (I18n.t :filter_sources), :src_count
-    actions
+    active_admin_muscat_actions( self )
   end
   
   ##########
@@ -110,9 +138,10 @@ ActiveAdmin.register Institution do
     else
       render :partial => "marc/show"
     end
-    active_admin_embedded_source_list( self, institution, params[:qe], params[:src_list_page] )
+    active_admin_embedded_source_list( self, institution, params[:qe], params[:src_list_page], !is_selection_mode? )
     active_admin_user_wf( self, institution )
     active_admin_navigation_bar( self )
+    active_admin_comments if !is_selection_mode?
   end
   
   sidebar I18n.t(:search_sources), :only => :show do
@@ -122,9 +151,9 @@ ActiveAdmin.register Institution do
   ##########
   ## Edit ##
   ##########
+  
   sidebar :sections, :only => [:edit, :new] do
     render("editor/section_sidebar") # Calls a partial
-    active_admin_submit_bar( self )
   end
   
   form :partial => "editor/edit_wide"

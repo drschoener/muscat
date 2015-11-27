@@ -15,6 +15,14 @@
 class Institution < ActiveRecord::Base
   resourcify
   
+  # class variables for storing the user name and the event from the controller
+  @@last_user_save
+  cattr_accessor :last_user_save
+  @@last_event_save
+  cattr_accessor :last_event_save
+  
+  has_paper_trail :on => [:update, :destroy], :only => [:marc_source], :if => Proc.new { |t| VersionChecker.save_version?(t) }
+  
   has_and_belongs_to_many :sources
   #has_many :folder_items, :as => :item
   has_and_belongs_to_many :workgroups
@@ -62,7 +70,7 @@ class Institution < ActiveRecord::Base
 
       self.marc.set_id self.id
       self.marc_source = self.marc.to_marc
-      self.save!
+      self.without_versioning :save
     end
   end
 
@@ -117,9 +125,6 @@ class Institution < ActiveRecord::Base
     # if it was suppressed we do not update it as it
     # will be nil
     return if marc_source == nil
-
-    # update last transcation
-    marc.update_005
     
     # If the source id is present in the MARC field, set it into the
     # db record
@@ -189,6 +194,11 @@ class Institution < ActiveRecord::Base
         wg.save
       end
     end
+  end
+  
+  def autocomplete_label
+    sigla = siglum != nil && !siglum.empty? ? "#{siglum} " : ""
+    "#{sigla}#{name}"
   end
   
   def autocomplete_label_siglum

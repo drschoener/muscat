@@ -43,7 +43,9 @@ fr:
     powered_by: "Propulsé par %{active_admin} %{version}"
     sidebars:
       filters: "Filtres"
-      sections: "SECTIONS"
+      sections: "Groupes et actions"
+      actions: "Actions"
+      toc: "Contenu"
     pagination:
       empty: "Aucun %{model} trouvé"
       one: "Affichage de <b>1</b> %{model}"
@@ -196,7 +198,9 @@ fr:
   menu_languages: "Langue"
   menu_contact: "Contact"
   menu_search_history: "Historique de recherche"
-  menu_marc_documentation: "Documentation Marc"
+  menu_guidelines: "Directives de catalogage"
+  menu_marc_documentation: "Configuration Marc"
+  menu_guidelines_top: "Instructions"
   
   ### VARIOUS ELEMENTS
   recent_changes: "Dernières modifications"
@@ -217,7 +221,23 @@ fr:
  
   # Editor sidebar
   show_all_groups: "Afficher tous les groupes"
-  show_preview: "Montrer/masquer l'aperçu"
+  show_preview: "Afficher l'aperçu"
+  show_history: "Afficher l'historique"
+  save_and_continue: "Enregistrer et continuer"
+  save_and_exit: "Enregistrer et terminer"
+  cancel: "Annuler"
+  
+  # Version history
+  history_date: "Date"
+  history_author: "Auteur"
+  history_event: "Action"
+  history_modification: "Modification"
+  history_view: "Afficher"
+  history_diff: "Comparer"
+  history_restore: "Restaurer"
+  history_delete: "Supprimer"
+  history_restore_confirm: "Désirez-vous restaurer cette version?"
+  history_delete_confirm: "Désirez-vous supprimer cette version?"
  
   #### FOLDER MESSAGES
   folders:
@@ -332,6 +352,10 @@ fr:
   rism_f_sharp: "Fa dièse majeur/mineur"
   rism_g: "Sol majeur/mineur"
   rism_g_sharp: "Sol dièse majeur/mineur"
+  
+  # Assorted error messages
+  error_not_found: "La resource à laquelle vous essayez d'accéder n'existe pas ou a été supprimée."
+  unknown_tags: "Ce titre contient des champs non reconnus."
   
   #
   entry:

@@ -8,6 +8,18 @@ ActiveAdmin.register Source do
   
   menu :priority => 10, :label => proc {I18n.t(:menu_sources)}
 
+  breadcrumb do
+    active_admin_muscat_breadcrumb
+  end
+    
+  action_item :view, only: :show, if: proc{ is_selection_mode? } do
+    active_admin_muscat_select_link( source )
+  end
+  
+  action_item :view, only: [:index, :show], if: proc{ is_selection_mode? } do
+    active_admin_muscat_cancel_link
+  end
+
   # See permitted parameters documentation:
   # https://github.com/gregbell/active_admin/blob/master/docs/2-resource-customization.md#setting-up-strong-parameters
   #
@@ -22,18 +34,34 @@ ActiveAdmin.register Source do
     autocomplete :source, :id, {:display_value => :autocomplete_label , :extra_data => [:std_title, :composer], :solr => false}
     autocomplete :source, "740_autocomplete_sms", :solr => true
     
+    def action_methods
+      return super - ['new', 'edit', 'destroy'] if is_selection_mode?
+      super
+    end
+    
     def permitted_params
       params.permit!
     end
     
     def show
-      @item = Source.find(params[:id])
+      begin
+        @item = Source.find(params[:id])
+      rescue ActiveRecord::RecordNotFound
+        redirect_to admin_root_path, :flash => { :error => "#{I18n.t(:error_not_found)} (Source #{params[:id]})" }
+        return
+      end
       @editor_profile = EditorConfiguration.get_show_layout @item
       @prev_item, @next_item, @prev_page, @next_page = Source.near_items_as_ransack(params, @item)
+      
+      respond_to do |format|
+        format.html
+        format.xml { render :xml => @item.marc.to_xml(@item.updated_at, @item.versions) }
+      end
     end
 
     def edit
       @item = Source.find(params[:id])
+      @show_history = true if params[:show_history]
       @editor_profile = EditorConfiguration.get_applicable_layout @item
       @page_title = "#{I18n.t(:edit)} #{@editor_profile.name} [#{@item.id}]"
     end
@@ -119,8 +147,8 @@ ActiveAdmin.register Source do
            end
          }
   
-  index do
-    selectable_column
+  index :download_links => false do
+    selectable_column if !is_selection_mode?
     column (I18n.t :filter_id), :id  
     column (I18n.t :filter_wf_stage) {|source| status_tag(source.wf_stage)} 
     column (I18n.t :filter_composer), :composer
@@ -135,7 +163,7 @@ ActiveAdmin.register Source do
     end
     column (I18n.t :filter_shelf_mark), :shelf_mark
     
-    actions
+    active_admin_muscat_actions( self )
   end
   
   ##########
@@ -149,7 +177,7 @@ ActiveAdmin.register Source do
     render :partial => "marc/show"
     active_admin_navigation_bar( self )
     active_admin_user_wf( self, @item )
-    active_admin_comments
+    active_admin_comments if !is_selection_mode?
   end
   
   ##########
@@ -158,7 +186,6 @@ ActiveAdmin.register Source do
   
   sidebar :sections, :class => "sidebar_tabs", :only => [:edit, :new] do
     render("editor/section_sidebar") # Calls a partial
-    active_admin_submit_bar( self )
   end
   
   form :partial => "editor/edit_wide"

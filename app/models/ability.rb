@@ -20,6 +20,8 @@ class Ability
       can :manage, Folder
       can [:read, :create], ActiveAdmin::Comment
       can :read, ActiveAdmin::Page, :name => "Dashboard"
+      can :read, ActiveAdmin::Page, :name => "guidelines"
+      can :read, ActiveAdmin::Page, :name => "doc"
       can [:read, :update], User, :id => user.id
 
     elsif user.has_role?(:cataloger, Person)
@@ -37,9 +39,11 @@ class Ability
       # end
       
       can :read, ActiveAdmin::Page, :name => "Dashboard"
+      can :read, ActiveAdmin::Page, :name => "guidelines"
+      can :read, ActiveAdmin::Page, :name => "doc"
       can [:read, :update], User, :id => user.id
     end
 
   end
-
+  
 end

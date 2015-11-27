@@ -4,7 +4,10 @@ source 'https://rubygems.org'
 gem 'rails', '~> 4.1.0'
 
 # Use mysql2 as the database for Active Record
-gem 'mysql2'
+# USE THIS VERSION for 4.1
+# http://stackoverflow.com/questions/32457657/rails-4-gemloaderror-specified-mysql2-for-database-adapter-but-the-gem-i
+# https://github.com/rails/rails/issues/21544
+gem 'mysql2', '~> 0.3.18'
 
 # Use SCSS for stylesheets
 gem 'sass-rails', '~> 4.0.0'
@@ -40,6 +43,15 @@ end
 # For generating both digest and no digest assets
 gem 'non-stupid-digest-assets'
 
+# Papertrail for old version support
+gem 'paper_trail'
+
+# for aligning marc
+gem 'needleman_wunsch_aligner'
+
+# for the documentation
+gem 'htmlentities'
+
 # Use ActiveModel has_secure_password
 # gem 'bcrypt-ruby', '~> 3.0.0'
 
@@ -64,7 +76,7 @@ gem "rolify"
 group :development do
     gem 'webrick', '~> 1.3.1'
 end
-gem 'blacklight', "= 5.13.1"
+gem 'blacklight', "~> 5.14"
 gem "blacklight_advanced_search"
 gem 'bootstrap-sass', "3.3.4.1"
 # For nice date ranges

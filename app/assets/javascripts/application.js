@@ -35,10 +35,15 @@
 //= require pae_incipit_render_ujs
 //= require textarea_autogrow_ujs
 //= require inline_autocomplete_ujs
+//= require marc_versioning_ujs
+//= require marc_messages_ujs
 //= require_tree .
 //= require autocomplete-rails
 //= require editor_hotkeys
-
+//= require verovio_preload
+//- require new_window_select_ujs
+//= require jsdiff.js
+	
 // For blacklight_range_limit built-in JS, if you don't want it you don't need
 // this:
 //= require 'blacklight_range_limit'

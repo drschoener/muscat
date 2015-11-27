@@ -7,6 +7,18 @@ ActiveAdmin.register LiturgicalFeast do
   
   collection_action :autocomplete_liturgical_feast_name, :method => :get
 
+  breadcrumb do
+    active_admin_muscat_breadcrumb
+  end
+    
+  action_item :view, only: :show, if: proc{ is_selection_mode? } do
+    active_admin_muscat_select_link( liturgical_feast )
+  end
+
+  action_item :view, only: [:index, :show], if: proc{ is_selection_mode? } do
+    active_admin_muscat_cancel_link
+  end
+
   # See permitted parameters documentation:
   # https://github.com/gregbell/active_admin/blob/master/docs/2-resource-customization.md#setting-up-strong-parameters
   #
@@ -20,6 +32,11 @@ ActiveAdmin.register LiturgicalFeast do
       item.user = current_user
     end
     
+    def action_methods
+      return super - ['new', 'edit', 'destroy'] if is_selection_mode?
+      super
+    end
+    
     def check_model_errors(object)
       return unless object.errors.any?
       flash[:error] ||= []
@@ -31,7 +48,11 @@ ActiveAdmin.register LiturgicalFeast do
     end
     
     def show
-      @liturgical_feast = LiturgicalFeast.find(params[:id])
+      begin
+        @liturgical_feast = LiturgicalFeast.find(params[:id])
+      rescue ActiveRecord::RecordNotFound
+        redirect_to admin_root_path, :flash => { :error => "#{I18n.t(:error_not_found)} (LiturgicalFeast #{params[:id]})" }
+      end
       @prev_item, @next_item, @prev_page, @next_page = LiturgicalFeast.near_items_as_ransack(params, @liturgical_feast)
     end
     
@@ -62,12 +83,12 @@ ActiveAdmin.register LiturgicalFeast do
   filter :id_with_integer, :label => proc {I18n.t(:is_in_folder)}, as: :select, 
          collection: proc{Folder.where(folder_type: "LiturgicalFeast").collect {|c| [c.name, "folder_id:#{c.id}"]}}
   
-  index do
-    selectable_column
+  index :download_links => false do
+    selectable_column if !is_selection_mode?
     column (I18n.t :filter_id), :id  
     column (I18n.t :filter_name), :name
     column (I18n.t :filter_sources), :src_count
-    actions
+    active_admin_muscat_actions( self )
   end
   
   ##########
@@ -80,9 +101,10 @@ ActiveAdmin.register LiturgicalFeast do
       row (I18n.t :filter_name) { |r| r.name }
       row (I18n.t :filter_notes) { |r| r.notes } 
     end
-    active_admin_embedded_source_list( self, liturgical_feast, params[:qe], params[:src_list_page] )
+    active_admin_embedded_source_list( self, liturgical_feast, params[:qe], params[:src_list_page], !is_selection_mode? )
     active_admin_user_wf( self, liturgical_feast )
     active_admin_navigation_bar( self )
+    active_admin_comments if !is_selection_mode?
   end
   
   sidebar I18n.t(:search_sources), :only => :show do
@@ -96,9 +118,13 @@ ActiveAdmin.register LiturgicalFeast do
   form do |f|
     f.inputs do
       f.input :name, :label => (I18n.t :filter_name)
-      f.input :notes, :label => (I18n.t :filter_notes) 
+      f.input :notes, :label => (I18n.t :filter_notes)
+      f.input :lock_version, :as => :hidden
     end
-    f.actions
+  end
+  
+  sidebar :actions, :only => [:edit, :new] do
+    render("editor/section_sidebar_save") # Calls a partial
   end
   
 end

@@ -1,10 +1,54 @@
+<%-
+    # Build the back to index path function
+    model = self.resource_class.to_s.underscore.downcase
+    models = model.pluralize
+    cancel_path = ""
+    if @item.id != nil
+      cancel_path = send("admin_#{model}_path", @item)
+    else
+      cancel_path = send("admin_#{models}_path")
+    end
+	help_title = @editor_profile.get_label("doc_edit_functions")
+%>
 <ul>
+	
 <%- @editor_profile.layout_config[:marc_editor_group_links].each do |gl| -%>
-	<li><a data-scroll-target="<%= gl.gsub(/ /, "_") -%>" href="#"><%= gl -%></a></li>
+	<li><a data-scroll-target="<%= gl.gsub(/ /, "_") -%>" data-panel="marc_editor_panel" href="#"><%= gl -%></a></li>
 <%- end -%>
+<%- if !@editor_profile.layout_config[:marc_editor_missing_group_links].empty? -%>
 	<li>&nbsp;</li>
-	<li><a data-scroll-target="show_all_groups" href="#"><%=(I18n.t :show_all_groups)%></a></li>
-	<li>&nbsp;</li>
-	<li><a data-sidebar-preview="true" href="#"><%=(I18n.t :show_preview)%></a> 
-		
+	<%- missing_group_link = @editor_profile.layout_config[:marc_editor_missing_group_links] %>
+	<li><a data-scroll-target="<%= missing_group_link.gsub(/ /, "_") -%>" data-panel="marc_editor_panel" href="#"><%= missing_group_link -%></a></li>
+<%- end -%>
+
+	<li class="muscat_icon_separator"></li>
+	<li class="muscat_icon_link">
+		<a data-scroll-target="show_toplevel" data-panel="marc_editor_panel" href="#" class="muscat_icon_link muscat_icon_link_all"><%=(I18n.t :show_all_groups)%></a>
+	</li>
+	<li class="muscat_icon_link">
+		<a data-scroll-target="show_preview" data-panel="marc_editor_preview" href="#" class="muscat_icon_link muscat_icon_link_preview"><%=(I18n.t :show_preview)%></a>
+	</li>
+	
+	<li class="muscat_icon_separator"></li>
+	<li class="muscat_icon_link">
+		<a data-scroll-target="action" data-action="save" href="#" class="muscat_icon_link muscat_icon_link_save"><%=(I18n.t :save_and_continue)%></a>
+	</li>
+	<li class="muscat_icon_link">
+		<a data-scroll-target="show_toplevel" data-panel="marc_editor_history" href="#" class="muscat_icon_link muscat_icon_link_history"><%=(I18n.t :show_history)%></a>
+	</li>
+	
+	<li class="muscat_icon_separator"></li>
+	<li class="muscat_icon_link">
+		<a href="<%= cancel_path %>" class="muscat_icon_link muscat_icon_link_cancel"><%=(I18n.t :cancel)%></a>
+	</li>
+	<li class="muscat_icon_link">
+		<a data-scroll-target="action" data-action="exit" href="#" class="muscat_icon_link muscat_icon_link_save_exit"><%=(I18n.t :save_and_exit)%></a>
+	</li>
+	
+	<li class="muscat_icon_separator"></li>
+	<li class="muscat_icon_link">
+		<a data-scroll-target="show_help" data-panel="marc_editor_help" data-help="edit_functions" data-help-title="<%= help_title -%>" href="#" class="muscat_icon_link muscat_icon_link_help"><%= help_title -%></a
+			></li>
+
 </ul>
+

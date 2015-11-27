@@ -4,8 +4,20 @@ ActiveAdmin.register Person do
 
   # Remove mass-delete action
   batch_action :destroy, false
+
+  breadcrumb do
+    active_admin_muscat_breadcrumb
+  end
   
   collection_action :autocomplete_person_full_name, :method => :get
+  
+  action_item :view, only: :show, if: proc{ is_selection_mode? } do
+    active_admin_muscat_select_link( person )
+  end
+
+  action_item :view, only: [:index, :show], if: proc{ is_selection_mode? } do
+    active_admin_muscat_cancel_link
+  end
   
   # See permitted parameters documentation:
   # https://github.com/gregbell/active_admin/blob/master/docs/2-resource-customization.md#setting-up-strong-parameters
@@ -20,6 +32,11 @@ ActiveAdmin.register Person do
       item.user = current_user
     end
     
+    def action_methods
+      return super - ['new', 'edit', 'destroy'] if is_selection_mode?
+      super
+    end
+    
     def check_model_errors(object)
       return unless object.errors.any?
       flash[:error] ||= []
@@ -32,19 +49,29 @@ ActiveAdmin.register Person do
     
     def edit
       @item = Person.find(params[:id])
+      @show_history = true if params[:show_history]
       @editor_profile = EditorConfiguration.get_applicable_layout @item
       @page_title = "#{I18n.t(:edit)} #{@editor_profile.name} [#{@item.id}]"
     end
     
     def show
-      @item = @person = Person.find(params[:id])
+      begin
+        @item = @person = Person.find(params[:id])
+      rescue ActiveRecord::RecordNotFound
+        redirect_to admin_root_path, :flash => { :error => "#{I18n.t(:error_not_found)} (Person #{params[:id]})" }
+        return
+      end
       @editor_profile = EditorConfiguration.get_show_layout @person
       @prev_item, @next_item, @prev_page, @next_page = Person.near_items_as_ransack(params, @person)
+      
+      respond_to do |format|
+        format.html
+        format.xml { render :xml => @item.marc.to_xml(@item.updated_at, @item.versions) }
+      end
     end
     
     def index
       @results = Person.search_as_ransack(params)
-      puts @results 
       index! do |format|
         @people = @results
         format.html
@@ -94,13 +121,13 @@ ActiveAdmin.register Person do
   filter :id_with_integer, :label => proc {I18n.t(:is_in_folder)}, as: :select, 
          collection: proc{Folder.where(folder_type: "Person").collect {|c| [c.name, "folder_id:#{c.id}"]}}
   
-  index do
-    selectable_column
+  index :download_links => false do
+    selectable_column if !is_selection_mode?
     column (I18n.t :filter_id), :id  
     column (I18n.t :filter_full_name), :full_name
     column (I18n.t :filter_life_dates), :life_dates
     column (I18n.t :filter_sources), :src_count
-    actions
+    active_admin_muscat_actions( self )
   end
   
   ##########
@@ -116,10 +143,10 @@ ActiveAdmin.register Person do
     else
       render :partial => "marc/show"
     end
-    active_admin_embedded_source_list( self, person, params[:qe], params[:src_list_page] )
+    active_admin_embedded_source_list( self, person, params[:qe], params[:src_list_page], !is_selection_mode? )
     active_admin_user_wf( self, person )
     active_admin_navigation_bar( self )
-    active_admin_comments
+    active_admin_comments if !is_selection_mode?
   end
   
   sidebar I18n.t(:search_sources), :only => :show do
@@ -132,7 +159,6 @@ ActiveAdmin.register Person do
   
   sidebar :sections, :only => [:edit, :new] do
     render("editor/section_sidebar") # Calls a partial
-    active_admin_submit_bar( self )
   end
   
   form :partial => "editor/edit_wide"

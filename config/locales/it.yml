@@ -43,7 +43,9 @@ it:
     powered_by: "Powered by %{active_admin} %{version}"
     sidebars:
       filters: "Filtri"
-      sections: "Sezioni"
+      sections: "Sezioni e azioni"
+      actions: "Azioni"
+      toc: "TABLE OF CONTENTS"
     pagination:
       empty: "Nessun %{model} trovato"
       one: "Sto mostrando <b>1</b> %{model}"
@@ -196,10 +198,12 @@ it:
   menu_languages: "Lingue"
   menu_contact: "Contatti"
   menu_search_history: "Ricerche effettuate"
-  menu_marc_documentation: "Marc documentation"
+  menu_guidelines: "Regole di Catalogazione"
+  menu_marc_documentation: "Configurazione Marc"
+  menu_guidelines_top: "Documentazione"
   
   ### VARIOUS ELEMENTS
-  recent_changes: "Ultime modificazione"
+  recent_changes: "Ultime modifiche"
   any_field_contains: "Qualsiasi campo contiene"
   title_contains: "Titolo diplomatico contiene"
   std_title_contains: "Titolo standard contiene"
@@ -217,7 +221,23 @@ it:
   
   # Editor sidebar
   show_all_groups: "Mostra tutti i gruppi"
-  show_preview: "Mostra/nascondi anteprima"
+  show_preview: "Mostra l'anteprima"
+  show_history: "Mostra lo storico"
+  save_and_continue: "Salva e continua"
+  save_and_exit: "Salva ed esci"
+  cancel: "Annulla"
+  
+  # Version history
+  history_date: "Data"
+  history_author: "Autore"
+  history_event: "Evento"
+  history_modification: "Modifica"
+  history_view: "Vedi"
+  history_diff: "Compara"
+  history_restore: "Ripristina"
+  history_delete: "Elimina"
+  history_restore_confirm: "Sei sicuro di voler ripristinare questa versione?"
+  history_delete_confirm: "Sei sicuro di voler cancellare questa versione?"
   
   #### FOLDER MESSAGES
   folders:
@@ -252,7 +272,7 @@ it:
   filter_folder_type: "Folder Type"
   filter_full_name: "Nome"
   filter_gender: "Sesso"
-  filter_id: "ID"
+  filter_id: "Id"
   filter_incipits: "Incipit"
   filter_incipits_ng: "Incipits (ngrams)"
   filter_incipits_tf: "Incipits (themefinder)"
@@ -333,6 +353,10 @@ it:
   rism_g: "Sol maggiore/minore"
   rism_g_sharp: "Sol diesis maggiore/minore"
   
+  # Assorted error messages
+  error_not_found: "La risorsa specificata non esiste oppure è stata cancellata."
+  unknown_tags: "Il record contiene dei campi sconosciuti"
+
   #
   entry:
      one: "voce"

@@ -13,7 +13,17 @@ ActiveAdmin.register User do
     end
   end
 
-  index do
+  ###########
+  ## Index ##
+  ###########
+
+  filter :name
+  filter :email
+  filter :current_sign_in_at
+  filter :sign_in_count
+  filter :created_at
+
+  index :download_links => false do
     selectable_column
     id_column
     column :name
@@ -31,11 +41,29 @@ ActiveAdmin.register User do
     actions
   end
 
-  filter :name
-  filter :email
-  filter :current_sign_in_at
-  filter :sign_in_count
-  filter :created_at
+  ##########
+  ## Show ##
+  ##########
+
+  show do
+    attributes_table do
+      row :name
+      row :email
+      row I18n.t(:workgroups) do |n|
+             user.workgroups.map(&:name).join(", ").html_safe
+      end
+      row I18n.t(:roles) do |user|
+           user.get_roles.join(", ")
+      end
+      row :sign_in_count
+      row :created_at
+      row :updated_at
+    end
+  end
+  
+  ##########
+  ## Edit ##
+  ##########
 
   form do |f|
     f.inputs I18n.t(:user_details) do
@@ -51,24 +79,10 @@ ActiveAdmin.register User do
         f.input :roles, as: :select, multiple: false, collection: Role.all
       end
     end
-    f.actions
   end
-
-  show do
-    attributes_table do 
-      row :name
-      row :email
-      row I18n.t(:workgroups) do |n|
-             user.workgroups.map(&:name).join(", ").html_safe
-      end
-      row I18n.t(:roles) do |user|
-           user.get_roles.join(", ")
-      end
-      row :sign_in_count
-      row :created_at
-      row :updated_at
+  
+  sidebar :actions, :only => [:edit, :new] do
+    render("editor/section_sidebar_save") # Calls a partial
   end
-  end
-
 
 end

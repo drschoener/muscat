@@ -43,7 +43,9 @@ de:
     powered_by: "Powered by %{active_admin} %{version}"
     sidebars:
       filters: "Filter"
-      sections: "Blöcke"
+      sections: "Blöcke und Aktionen"
+      actions: "Aktionen"
+      toc: "Inhalt"
     pagination:
       empty: "Keine %{model} gefunden"
       one: "Zeige <b>1</b> %{model}"
@@ -168,7 +170,7 @@ de:
         other: "Schlagwörter"
       standard_title:
         one: "Standardtitel"
-        other: "Standardtiteln"
+        other: "Standardtitel"
       user:
         one: "Benutzer"
         other: "Benutzer"
@@ -196,7 +198,9 @@ de:
   menu_languages: "Sprache"
   menu_contact: "Kontakt"
   menu_search_history: "Suchverlauf"
-  menu_marc_documentation: "Marc documentation"
+  menu_guidelines: "Katalogisierungsrichtlinien"
+  menu_marc_documentation: "Marc Einstellungen"
+  menu_guidelines_top: "Richtlinien"
   
   ### VARIOUS ELEMENTS
   recent_changes: "Letzte Änderungen"
@@ -217,13 +221,29 @@ de:
   
   # Editor sidebar
   show_all_groups: "Alle Blöcke anzeigen"
-  show_preview: "Vorschau anzeigen/verbergen"
+  show_preview: "Vorschau anzeigen"
+  show_history: "Änderungsgeschichte"
+  save_and_continue: "Speichern und weiter bearbeiten"
+  save_and_exit: "Speichern und verlassen"
+  cancel: "Abbrechen"
+  
+  # Version history
+  history_date: "Datum"
+  history_author: "Bearbeiter"
+  history_event: "Aktion"
+  history_modification: "Modifikation"
+  history_view: "Anzeigen"
+  history_diff: "Vergleichen"
+  history_restore: "Wiederherstellen"
+  history_delete: "Löschen"
+  history_restore_confirm: "Wollen Sie diese Version wiederherstellen?"
+  history_delete_confirm: "Wollen Sie diese Version löschen?"
   
   #### FOLDER MESSAGES
   folders:
     save: "In Ordner speichern"
     success: "Ordner %{name} generiert aus %{count} Datensätzen."
-    too_many: "Es können nicht mehr als %{max} Datensätze (%{count} ausgewählt werden)."
+    too_many: "Es können nicht mehr als %{max} Datensätze ausgewählt werden (%{count} wurden ausgewählt)."
 
   ############ filters
   filter_address: "Adresse"
@@ -333,6 +353,10 @@ de:
   rism_g: "G-Dur/Moll"
   rism_g_sharp: "Gis-Dur/Moll"
   
+  # Assorted error messages
+  error_not_found: "Der gesuchte Eintrag existiert nicht order wurde gelöscht."
+  unknown_tags: "Dieser Eintrag enthält falsch verwendete Felder"
+   
   #
   entry:
      one: "Eintrag"

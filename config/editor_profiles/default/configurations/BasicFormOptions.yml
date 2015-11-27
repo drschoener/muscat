@@ -123,16 +123,7 @@
     - - q
       - cols: 5
     columns: 5
-  tag_params: 
-    timesig: 
-      subfield: o
-      s_iterator: -400
-    keysig: 
-      subfield: n
-      s_iterator: -200
-    clef: 
-      subfield: g
-      s_iterator: -300
+
 "033": 
   layout: 
     fields: 
@@ -599,7 +590,7 @@
       - cols: 2
         editor_partial: subfield_relator_codes_700
     columns: 6
-  tag_list_header: tag_list_header_relator_codes
+  tag_list_additional_data: tag_list_additional_data_relator_codes
   tag_params: 
     groups: 
       01_codes_artistic: 

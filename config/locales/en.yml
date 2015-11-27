@@ -43,7 +43,9 @@ en:
     powered_by: "Powered by %{active_admin} %{version}"
     sidebars:
       filters: "Filters"
-      sections: "Sections"
+      sections: "Sections and actions"
+      actions: "Actions"
+      toc: "Table of content"
     pagination:
       empty: "No %{model} found"
       one: "Displaying <b>1</b> %{model}"
@@ -196,7 +198,9 @@ en:
   menu_languages: "Language"
   menu_contact: "Contact"
   menu_search_history: "Search history"
-  menu_marc_documentation: "Marc documentation"
+  menu_guidelines: "Cataloguing guidelines"
+  menu_marc_documentation: "Marc configuration"
+  menu_guidelines_top: "Guidelines"
   
   ### VARIOUS ELEMENTS
   recent_changes: "Lastest modifications"
@@ -216,8 +220,24 @@ en:
   updated_at: "Last modification"
   
   # Editor sidebar
-  show_all_groups: "Show All Groups"
-  show_preview: "Show/Hide Preview"
+  show_all_groups: "Show all sections"
+  show_preview: "Show preview"
+  show_history: "Show modification history"
+  save_and_continue: "Save and continue editing"
+  save_and_exit: "Save and terminate"
+  cancel: "Cancel"
+  
+  # Version history
+  history_date: "Date"
+  history_author: "Author"
+  history_event: "Event"
+  history_modification: "Modification"
+  history_view: "View"
+  history_diff: "Diff"
+  history_restore: "Restore"
+  history_delete: "Delete"
+  history_restore_confirm: "Do you want to restore this version?"
+  history_delete_confirm: "Do you want to delete this version?"
   
   #### FOLDER MESSAGES
   folders:
@@ -332,6 +352,10 @@ en:
   rism_f_sharp: "F sharp major/minor"
   rism_g: "G major/minor"
   rism_g_sharp: "G sharp major/minor"
+  
+  # Assorted error messages
+  error_not_found: "The resource you are trying to access does not exist or has been deleted."
+  unknown_tags: "There are some unknown fields in this record"
   
   #
   entry:

@@ -47,7 +47,7 @@ ActiveAdmin.register Folder do
   # Solr search all fields: "_equal"
   filter :name_equals, :label => proc {I18n.t(:any_field_contains)}, :as => :string
   
-  index do |ad|
+  index :download_links => false do |ad|
     selectable_column
     column (I18n.t :filter_name), :name
     column (I18n.t :filter_folder_type), :folder_type
@@ -82,13 +82,19 @@ ActiveAdmin.register Folder do
     end
     
   end
+
+  ##########
+  ## Edit ##
+  ##########
   
- 
+  sidebar :actions, :only => [:edit, :new] do
+    render("editor/section_sidebar_save") # Calls a partial
+  end
+
   form do |f|
     f.inputs do
       f.input :name, :label => (I18n.t :filter_name)
     end
-    f.actions
   end
   
 end

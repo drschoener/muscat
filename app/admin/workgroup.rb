@@ -47,7 +47,7 @@ ActiveAdmin.register Workgroup do
   # Solr search all fields: "_equal"
   filter :name_equals, :label => proc {I18n.t(:any_field_contains)}, :as => :string
   
-  index do
+  index :download_links => false do
     selectable_column
     column (I18n.t :filter_id), :id  
     column (I18n.t :filter_name), :name
@@ -93,7 +93,10 @@ ActiveAdmin.register Workgroup do
       #f.input :alternates, :label => (I18n.t :filter_alternates), :input_html => { :rows => 3 }
       #f.input :notes, :label => (I18n.t :filter_notes) 
     end
-    f.actions
+  end
+  
+  sidebar :actions, :only => [:edit, :new] do
+    render("editor/section_sidebar_save") # Calls a partial
   end
   
 end

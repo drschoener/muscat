@@ -8,6 +8,18 @@ ActiveAdmin.register Place do
   
   collection_action :autocomplete_place_name, :method => :get
 
+  breadcrumb do
+    active_admin_muscat_breadcrumb
+  end
+    
+  action_item :view, only: :show, if: proc{ is_selection_mode? } do
+    active_admin_muscat_select_link( place )
+  end
+  
+  action_item :view, only: [:index, :show], if: proc{ is_selection_mode? } do
+    active_admin_muscat_cancel_link
+  end
+
   # See permitted parameters documentation:
   # https://github.com/gregbell/active_admin/blob/master/docs/2-resource-customization.md#setting-up-strong-parameters
   #
@@ -21,6 +33,11 @@ ActiveAdmin.register Place do
       item.user = current_user
     end
     
+    def action_methods
+      return super - ['new', 'edit', 'destroy'] if is_selection_mode?
+      super
+    end
+    
     def check_model_errors(object)
       return unless object.errors.any?
       flash[:error] ||= []
@@ -32,7 +49,11 @@ ActiveAdmin.register Place do
     end
     
     def show
-      @place = Place.find(params[:id])
+      begin
+        @place = Place.find(params[:id])
+      rescue ActiveRecord::RecordNotFound
+        redirect_to admin_root_path, :flash => { :error => "#{I18n.t(:error_not_found)} (Place #{params[:id]})" }
+      end
       @prev_item, @next_item, @prev_page, @next_page = Place.near_items_as_ransack(params, @place)
     end
     
@@ -63,13 +84,13 @@ ActiveAdmin.register Place do
   filter :id_with_integer, :label => proc {I18n.t(:is_in_folder)}, as: :select, 
          collection: proc{Folder.where(folder_type: "Place").collect {|c| [c.name, "folder_id:#{c.id}"]}}
   
-  index do
-    selectable_column
+  index :download_links => false do
+    selectable_column if !is_selection_mode?
     column (I18n.t :filter_id), :id  
     column (I18n.t :filter_name), :name
     column (I18n.t :filter_country), :country
     column (I18n.t :filter_sources), :src_count
-    actions
+    active_admin_muscat_actions( self )
   end
   
   ##########
@@ -83,9 +104,10 @@ ActiveAdmin.register Place do
       row (I18n.t :filter_country) { |r| r.country }
       row (I18n.t :filter_district) { |r| r.district }    
     end
-    active_admin_embedded_source_list( self, place, params[:qe], params[:src_list_page] )
+    active_admin_embedded_source_list( self, place, params[:qe], params[:src_list_page], !is_selection_mode? )
     active_admin_user_wf( self, place )
     active_admin_navigation_bar( self )
+    active_admin_comments if !is_selection_mode?
   end
   
   sidebar I18n.t(:search_sources), :only => :show do
@@ -100,9 +122,13 @@ ActiveAdmin.register Place do
     f.inputs do
       f.input :name, :label => (I18n.t :filter_name)
       f.input :country, :label => (I18n.t :filter_country), :as => :string # otherwise country-select assumed
-      f.input :district, :label => (I18n.t :filter_district) 
+      f.input :district, :label => (I18n.t :filter_district)
+      f.input :lock_version, :as => :hidden
     end
-    f.actions
+  end
+
+  sidebar :actions, :only => [:edit, :new] do
+    render("editor/section_sidebar_save") # Calls a partial
   end
 
 end

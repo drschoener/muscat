@@ -9,6 +9,17 @@ used for _tag_header partial
 */
 
 (function(jQuery) {
+    
+    // adjust the link when a help file is loaded in the editor
+    // because we then want the interal link to load their content
+    // through marc_editor_show_help (and not using #anchors)
+    function adjust_editor_help_links() { 
+        $('a[data-help-internal]').click(function(e){
+            e.preventDefault();
+            title = $(this).text();
+            marc_editor_show_help($(this).data("help-internal"), title);
+        });
+    }
 	
 	function tag_header_toggle(elem) {
 		tag_container = elem.parents(".tag_container");
@@ -61,8 +72,9 @@ used for _tag_header partial
         }
     }
 	
+	// Create a new element when the tag_group already contains elements
 	function tag_header_add(elem) {
-		placeholder = elem.parents(".tag_group").children(".tag_placeholders");
+		placeholder = elem.parents(".tag_group").children(".tag_placeholders_toplevel").children(".tag_placeholders");
 		current_dt = elem.parents(".tag_toplevel_container");
 
 		new_dt = placeholder.clone();
@@ -71,10 +83,12 @@ used for _tag_header partial
 		new_dt.fadeIn('fast');
 	}
     
+	// Create a new element when the tag_group is empty. It is necessary
+	// because in this case there is no tag_toplevel_container
 	function tag_header_add_from_empty(elem) {
         // hide help if necessary
         elem.parents(".tag_container").children(".tag_help_collapsable").hide();
-		placeholder = elem.parents(".tag_group").children(".tag_placeholders");
+		placeholder = elem.parents(".tag_group").children(".tag_placeholders_toplevel").children(".tag_placeholders");
 		parent_dl = elem.parents(".tag_group").children(".marc_editor_tag_block");
 
 		new_dt = placeholder.clone();
@@ -115,6 +129,7 @@ used for _tag_header partial
     	$.ajax({
     		success: function(data) {
                 help_div.children(".help_content").html(data);
+                adjust_editor_help_links();
                 help_div.fadeIn('fast');
     		},
     		dataType: 'html',
@@ -122,6 +137,17 @@ used for _tag_header partial
     		type: 'get',
     		url: elem.data("help")
     	});
+	}
+	
+	// Duplicate a whole group
+	function tag_header_new_group(elem) {
+		placeholder = elem.parents(".tab_panel").children(".group_placeholders_toplevel").children(".group_placeholders").children(".panel");
+		toplevel_dl =  elem.parents(".tab_panel").children(".tag_group_container");
+		
+		new_group = placeholder.clone();
+		dt = $("<dt />").append(new_group);
+		dt.appendTo(toplevel_dl);
+		dt.fadeIn('fast');
 	}
 	
 	var self = null;
@@ -168,6 +194,8 @@ used for _tag_header partial
 					tag_header_edit($(this));
 				} else if ($(this).data("header-button") == "help") {
 					tag_header_help($(this));
+				}else if ($(this).data("group-button") == "add") {
+					tag_header_new_group($(this));
 				}
                 
 				
