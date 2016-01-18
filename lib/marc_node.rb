@@ -210,7 +210,7 @@ class MarcNode
             end
           rescue
             $stderr.puts "Failed to save foreign object #{self.foreign_object.to_yaml}"
-          end
+            end
         end 
         # now add the master subfield $0 with the id value
         if add_master
