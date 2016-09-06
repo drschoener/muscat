@@ -928,14 +928,14 @@ doc_templates: !map:ActiveSupport::HashWithIndifferentAccess
         en: ""
 "511": !map:ActiveSupport::HashWithIndifferentAccess 
   label: !map:ActiveSupport::HashWithIndifferentAccess 
-    it: Nota sui interpreti
+    it: Nota sugli interpreti
     fr: "Remarque sur les interprètes"
     de: "Bemerkungen zu den Aufführungen"
     en: Performer note
   fields: !map:ActiveSupport::HashWithIndifferentAccess 
     a: !map:ActiveSupport::HashWithIndifferentAccess 
       label: !map:ActiveSupport::HashWithIndifferentAccess 
-        it: Nota sui interpreti
+        it: Nota sugli interpreti
         fr: "Remarque sur les interprètes"
         de: "Bemerkungen zu den Aufführungen"
         en: Performer note
@@ -2329,7 +2329,7 @@ show_terms: !map:ActiveSupport::HashWithIndifferentAccess
     en: Index terms
 subject: !map:ActiveSupport::HashWithIndifferentAccess 
   label: !map:ActiveSupport::HashWithIndifferentAccess 
-    it: Note sul sitolo uniforme
+    it: Note sul titolo uniforme
     fr: "Entrées de sujets"
     de: Schlagworteintragungen
     en: Subject access fields
